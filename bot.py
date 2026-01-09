@@ -134,6 +134,11 @@ def check_jobs():
         options.add_argument("--ignore-certificate-errors")
         # Gercek bir browser gibi gorunmek icin User-Agent
         options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+        
+        # Bot oldugunu gizle (Anti-bot korumasini asmak icin)
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        options.add_experimental_option('useAutomationExtension', False)
     
     # options.add_argument("--headless=new") # Local debug icin kapali kalsin
     options.add_argument("--no-sandbox")
@@ -152,6 +157,9 @@ def check_jobs():
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=options)
         
+        # Bot oldugunu gizleyen script
+        driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+
         # Sayfa yukleme zaman asimi (30 saniye verelim, donarsa 120 beklemesin)
         driver.set_page_load_timeout(30)
         
@@ -159,7 +167,7 @@ def check_jobs():
         driver.get("https://isealimkariyerkapisi.cbiko.gov.tr")
         
         # 'none' stratejisinde get hemen doner, biraz manuel bekleme ekleyelim
-        time.sleep(5)
+        time.sleep(10)
         
         try:
             print("Buton kontrol ediliyor...", flush=True)
