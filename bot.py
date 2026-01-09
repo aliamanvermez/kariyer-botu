@@ -167,10 +167,10 @@ def check_jobs():
         time.sleep(1) # Yazarken biraz bekle
         search_box.send_keys(Keys.ENTER) # Enter tusuna bas
         
-        # Tiklama da yapalim garanti olsun
+        # Tiklama da yapalim garanti olsun (JS ile)
         try:
             search_btn = driver.find_element(By.ID, "btn_Search")
-            search_btn.click()
+            driver.execute_script("arguments[0].click();", search_btn)
         except:
             pass
 
@@ -185,13 +185,9 @@ def check_jobs():
 
         print(f"Toplam {len(ilan_rows)} ilan bulundu.", flush=True)
         
+        # Sonuc sayisi uyarisi (Bilgi amacli)
         if len(ilan_rows) > 20:
-             print("DIKKAT: Cok fazla sonuc bulundu. Arama filtresi calismamis olabilir.", flush=True)
-             first_text = ilan_rows[0].text.lower()
-             keyword_part = "yönetim".lower() 
-             if keyword_part not in first_text:
-                 print("Ilk ilanda anahtar kelime bulunamadi, islem iptal ediliyor.", flush=True)
-                 return
+             print("DIKKAT: Cok fazla sonuc dondu. Python tarafinda filtreleme uygulanacak.", flush=True)
         
         new_ilanlar = []
 
@@ -202,6 +198,18 @@ def check_jobs():
                 ilan_id = href.split("i=")[-1]
                 ilan_text = row.text.replace("\n", " ")
                 
+                # Python tarafinda filtreleme sadece cok fazla sonuc donerse (guvenilmezse) yapilmali
+                # Normalde site aramasi "Yönetim" sozcugunu icerikte bulup getiriyor, baslikta yazmasa bile.
+                
+                check_text = ilan_text.replace('İ', 'i').replace('I', 'ı').lower()
+                
+                # Eger 20'den fazla sonuc varsa filtreyi zorunlu kilalim
+                if len(ilan_rows) > 20: 
+                    basic_check = "yönetim bilişim".replace('İ', 'i').replace('I', 'ı').lower()
+                    if basic_check not in check_text:
+                         # print("Filtreye takildi.", flush=True)
+                         continue
+
                 if ilan_id not in seen_ads:
                     print(f"YENİ: {ilan_text[:50]}...")
                     seen_ads.add(ilan_id)
