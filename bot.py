@@ -142,7 +142,8 @@ def check_jobs():
     options.add_argument("--log-level=3")
     
     # Sayfanin tamamen yuklenmesini bekleme (resimler vs. donarsa donmasin)
-    options.page_load_strategy = 'eager'
+    # 'none': Sayfa yuklenmesini hic bekleme, biz elementleri bekleriz.
+    options.page_load_strategy = 'none'
 
     driver = None
     try:
@@ -156,6 +157,9 @@ def check_jobs():
         
         print("Siteye gidiliyor...", flush=True)
         driver.get("https://isealimkariyerkapisi.cbiko.gov.tr")
+        
+        # 'none' stratejisinde get hemen doner, biraz manuel bekleme ekleyelim
+        time.sleep(5)
         
         try:
             print("Buton kontrol ediliyor...", flush=True)
