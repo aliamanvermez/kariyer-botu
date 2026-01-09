@@ -127,17 +127,29 @@ def check_jobs():
     is_ci = os.environ.get("CI") == "true"
     if is_ci:
         options.add_argument("--headless=new")
+        options.add_argument("--disable-gpu") # CI icin ek onlem
+        options.add_argument("--disable-extensions")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--ignore-certificate-errors")
+        # Gercek bir browser gibi gorunmek icin User-Agent
+        options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
     
     # options.add_argument("--headless=new") # Local debug icin kapali kalsin
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--window-size=1280,800")
+    options.add_argument("--window-size=1920,1080") # Daha buyuk cozunurluk
     options.add_argument("--log-level=3")
 
     driver = None
     try:
         print("Tarayici baslatiliyor...", flush=True)
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        # Service logunu kapatmak icin
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
+        
+        # Sayfa yukleme zaman asimi (30 saniye verelim, donarsa 120 beklemesin)
+        driver.set_page_load_timeout(30)
         
         print("Siteye gidiliyor...", flush=True)
         driver.get("https://isealimkariyerkapisi.cbiko.gov.tr")
