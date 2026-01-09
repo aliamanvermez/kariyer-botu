@@ -1,0 +1,40 @@
+name: Kariyer Kapısı Günlük Kontrol
+
+on:
+  schedule:
+    # Her gun sabah 09:00 (UTC+3 icin 06:00 UTC)
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Manuel tetikleme icin
+
+jobs:
+  check-jobs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Depoyu cek
+      uses: actions/checkout@v3
+
+    - name: Python Kurulumu
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Bagimliliklari Yukle
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Botu Calistir
+      env:
+        SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+        SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
+        RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
+        CI: true
+      run: python bot.py
+      
+    - name: Degisiklikleri Kaydet (Ilan Takibi Icin)
+      run: |
+        git config --global user.name 'GitHub Action'
+        git config --global user.email 'action@github.com'
+        git add seen_ads.json
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update seen ads" && git push)
