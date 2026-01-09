@@ -140,6 +140,9 @@ def check_jobs():
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--window-size=1920,1080") # Daha buyuk cozunurluk
     options.add_argument("--log-level=3")
+    
+    # Sayfanin tamamen yuklenmesini bekleme (resimler vs. donarsa donmasin)
+    options.page_load_strategy = 'eager'
 
     driver = None
     try:
